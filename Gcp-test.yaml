@@ -1,0 +1,36 @@
+resources:
+- name: my-postgresql-instance
+  type: compute.v1.instance
+  properties:
+    zone: us-central1-a
+    machineType: projects/cicd-pipeline-for-postgre/zones/us-central1-a/machineTypes/n1-standard-1
+    disks:
+    - deviceName: boot
+      type: PERSISTENT
+      boot: true
+      autoDelete: true
+      initializeParams:
+        diskName: my-postgresql-disk
+        sourceImage: projects/postgresql-public/global/images/postgresql-13
+    networkInterfaces:
+    - network: projects/cicd-pipeline-for-postgre/global/networks/default
+      accessConfigs:
+      - name: External NAT
+        type: ONE_TO_ONE_NAT
+    metadata:
+      items:
+      - key: startup-script
+        value: |-
+          #!/bin/bash
+          apt-get update
+          apt-get install -y postgresql
+- name: my-postgresql-firewall
+  type: compute.v1.firewall
+  properties:
+    network: projects/cicd-pipeline-for-postgre/global/networks/default
+    sourceRanges:
+    - 0.0.0.0/0
+    allowed:
+    - IPProtocol: tcp
+      ports:
+      - '5432'

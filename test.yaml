@@ -1,0 +1,18 @@
+steps:
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        # Set the project ID and region
+        PROJECT_ID=postgresql-project
+        REGION=southamerica-east1 
+
+        # Start the Cloud SQL Proxy
+        cloud_sql_proxy -instances=$PROJECT_ID:$REGION:postgresql-project-391107:southamerica-east1:gcp-postgresql=tcp:5432 &
+
+        # Wait for the proxy to start
+        sleep 5
+
+        # Connect to PostgreSQL and execute the SQL script
+        psql -h 127.0.0.1 -U gcp-postgresql -d  postgres -c "SELECT *FROM mytable;"
